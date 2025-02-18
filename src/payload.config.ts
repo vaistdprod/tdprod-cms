@@ -7,6 +7,10 @@ import { fileURLToPath } from 'url'
 import { Pages } from './collections/Pages'
 import { Tenants } from './collections/Tenants'
 import Users from './collections/Users'
+import { Services } from './collections/Services'
+import { OfficeHours } from './collections/OfficeHours'
+import { News } from './collections/News'
+import { Media } from './collections/Media'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { isSuperAdmin } from './access/isSuperAdmin'
 import type { Config } from './payload-types'
@@ -20,9 +24,9 @@ export default buildConfig({
   admin: {
     user: 'users',
   },
-  collections: [Pages, Users, Tenants],
+  collections: [Pages, Users, Tenants, Services, OfficeHours, News, Media],
   db: mongooseAdapter({
-    url: process.env.DATABASE_URI as string,
+    url: process.env.MONGODB_URI as string,
   }),
   editor: lexicalEditor({}),
   graphQL: {
@@ -35,7 +39,26 @@ export default buildConfig({
   plugins: [
     multiTenantPlugin<Config>({
       collections: {
-        pages: {},
+        pages: {
+          useBaseListFilter: true,
+          useTenantAccess: true,
+        },
+        services: {
+          useBaseListFilter: true,
+          useTenantAccess: true,
+        },
+        'office-hours': {
+          useBaseListFilter: true,
+          useTenantAccess: true,
+        },
+        news: {
+          useBaseListFilter: true,
+          useTenantAccess: true,
+        },
+        media: {
+          useBaseListFilter: true,
+          useTenantAccess: true,
+        },
       },
       tenantField: {
         access: {
