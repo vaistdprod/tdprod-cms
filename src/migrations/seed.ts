@@ -1,5 +1,20 @@
 import type { MigrateUpArgs } from '@payloadcms/db-mongodb'
 
+const requiredEnvVars = [
+  'SEED_SUPER_ADMIN_EMAIL',
+  'SEED_SUPER_ADMIN_PASSWORD',
+  'SEED_TENANT1_NAME',
+  'SEED_TENANT1_SLUG',
+  'SEED_TENANT1_DOMAIN',
+  'SEED_TENANT1_ADMIN_EMAIL',
+  'SEED_TENANT1_ADMIN_PASSWORD',
+  'SEED_TENANT2_NAME',
+  'SEED_TENANT2_SLUG',
+  'SEED_TENANT2_DOMAIN',
+  'SEED_TENANT2_ADMIN_EMAIL',
+  'SEED_TENANT2_ADMIN_PASSWORD',
+] as const
+
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   // Multiple safety checks to prevent running in production
   if (process.env.NODE_ENV === 'production') {
@@ -10,26 +25,28 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
     throw new Error('SAFETY CHECK: Can only run seed migration on development database (multi-tenant-dev)')
   }
 
-  // Additional verification prompt
-  if (process.env.CONFIRM_SEED !== 'yes') {
+  // Verify all required environment variables are present
+  const missingVars = requiredEnvVars.filter(varName => !process.env[varName])
+  if (missingVars.length > 0) {
     throw new Error(
-      'SAFETY CHECK: Must set CONFIRM_SEED=yes in .env.development to run seed migration\n' +
-      'This helps prevent accidental database resets.'
+      'Missing required environment variables for seeding:\n' +
+      missingVars.join('\n') +
+      '\nPlease check your .env.development file'
     )
   }
 
   try {
     // Create tenants
     const tenant1Data = {
-      name: 'Dr. Sarah\'s Practice',
-      slug: 'dr-sarah',
-      domain: 'drsarah.test',
+      name: process.env.SEED_TENANT1_NAME!,
+      slug: process.env.SEED_TENANT1_SLUG!,
+      domain: process.env.SEED_TENANT1_DOMAIN!,
     }
 
     const tenant2Data = {
-      name: 'Professional Pediatric Clinic',
-      slug: 'pediatric-clinic',
-      domain: 'pediatric-clinic.test',
+      name: process.env.SEED_TENANT2_NAME!,
+      slug: process.env.SEED_TENANT2_SLUG!,
+      domain: process.env.SEED_TENANT2_DOMAIN!,
     }
 
     const tenant1 = await payload.create({
@@ -51,31 +68,31 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
     // Create users
     const users = [
       {
-        email: 'admin@example.com',
-        password: 'admin123',
+        email: process.env.SEED_SUPER_ADMIN_EMAIL!,
+        password: process.env.SEED_SUPER_ADMIN_PASSWORD!,
         roles: ['super-admin'] as ('user' | 'super-admin')[],
       },
       {
-        email: 'drsarah@example.com',
-        password: 'tenant123',
+        email: process.env.SEED_TENANT1_ADMIN_EMAIL!,
+        password: process.env.SEED_TENANT1_ADMIN_PASSWORD!,
         tenants: [
           {
             roles: ['tenant-admin'] as ('tenant-admin' | 'tenant-viewer')[],
             tenant: tenant1.id,
           },
         ],
-        username: 'drsarah',
+        username: process.env.SEED_TENANT1_SLUG!,
       },
       {
-        email: 'clinic@example.com',
-        password: 'tenant123',
+        email: process.env.SEED_TENANT2_ADMIN_EMAIL!,
+        password: process.env.SEED_TENANT2_ADMIN_PASSWORD!,
         tenants: [
           {
             roles: ['tenant-admin'] as ('tenant-admin' | 'tenant-viewer')[],
             tenant: tenant2.id,
           },
         ],
-        username: 'clinic',
+        username: process.env.SEED_TENANT2_SLUG!,
       },
     ]
 
@@ -96,12 +113,12 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
       {
         slug: 'home',
         tenant: tenant1.id,
-        title: 'Welcome to Dr. Sarah\'s Pediatric Practice',
+        title: `Welcome to ${tenant1Data.name}`,
       },
       {
         slug: 'home',
         tenant: tenant2.id,
-        title: 'Professional Pediatric Clinic',
+        title: `Welcome to ${tenant2Data.name}`,
       },
     ]
 
