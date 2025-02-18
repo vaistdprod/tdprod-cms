@@ -1,7 +1,8 @@
-import { Block } from 'payload/types'
+import { Block } from 'payload'
 
 export const HeroBlock: Block = {
   slug: 'hero',
+  interfaceName: 'HeroBlock',
   fields: [
     {
       name: 'heading',
@@ -104,6 +105,48 @@ export const HeroBlock: Block = {
               defaultValue: '4rem',
             },
           ],
+        },
+        {
+          name: 'backgroundOverlay',
+          type: 'group',
+          fields: [
+            {
+              name: 'enabled',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+            {
+              name: 'color',
+              type: 'text',
+              admin: {
+                description: 'Hex color with opacity (e.g., #00000080)',
+                condition: (data, siblingData) => siblingData?.enabled,
+              },
+            },
+          ],
+        },
+        {
+          name: 'height',
+          type: 'select',
+          options: [
+            {
+              label: 'Auto',
+              value: 'auto',
+            },
+            {
+              label: 'Full Screen',
+              value: '100vh',
+            },
+            {
+              label: '75% Screen',
+              value: '75vh',
+            },
+            {
+              label: '50% Screen',
+              value: '50vh',
+            },
+          ],
+          defaultValue: 'auto',
         },
       ],
     },

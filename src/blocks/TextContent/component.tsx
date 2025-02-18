@@ -1,6 +1,5 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
-import { RichText } from '@payloadcms/richtext-lexical'
 
 interface Style {
   textColor?: string
@@ -14,10 +13,93 @@ interface Style {
 }
 
 interface TextContentProps {
-  content: any // Rich text content from Payload
+  content: {
+    root: {
+      children: Array<{
+        text?: string
+        type?: string
+        [key: string]: any
+      }>
+    }
+  }
   columns: '1' | '2'
   style: Style
   className?: string
+}
+
+type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+
+const renderNode = (node: any): React.ReactNode => {
+  if (typeof node === 'string') return node
+  if (!node) return null
+
+  if (node.text) {
+    let content = node.text
+    if (node.bold) content = <strong key={content}>{content}</strong>
+    if (node.italic) content = <em key={content}>{content}</em>
+    if (node.underline) content = <u key={content}>{content}</u>
+    return content
+  }
+
+  if (node.type === 'paragraph') {
+    return (
+      <p key={Math.random()}>
+        {node.children?.map((child: any, index: number) => (
+          <React.Fragment key={index}>
+            {renderNode(child)}
+          </React.Fragment>
+        ))}
+      </p>
+    )
+  }
+
+  if (node.type === 'heading') {
+    const HeadingComponent = React.createElement(
+      `h${node.tag}` as HeadingTag,
+      { key: Math.random() },
+      node.children?.map((child: any, index: number) => (
+        <React.Fragment key={index}>
+          {renderNode(child)}
+        </React.Fragment>
+      ))
+    )
+    return HeadingComponent
+  }
+
+  if (node.type === 'list') {
+    const ListComponent = node.listType === 'ordered' ? 'ol' : 'ul'
+    return React.createElement(
+      ListComponent,
+      { key: Math.random() },
+      node.children?.map((child: any, index: number) => (
+        <React.Fragment key={index}>
+          {renderNode(child)}
+        </React.Fragment>
+      ))
+    )
+  }
+
+  if (node.type === 'listitem') {
+    return (
+      <li key={Math.random()}>
+        {node.children?.map((child: any, index: number) => (
+          <React.Fragment key={index}>
+            {renderNode(child)}
+          </React.Fragment>
+        ))}
+      </li>
+    )
+  }
+
+  if (node.children) {
+    return node.children.map((child: any, index: number) => (
+      <React.Fragment key={index}>
+        {renderNode(child)}
+      </React.Fragment>
+    ))
+  }
+
+  return null
 }
 
 export const TextContent: React.FC<TextContentProps> = ({
@@ -54,7 +136,11 @@ export const TextContent: React.FC<TextContentProps> = ({
           }}
           className="prose prose-lg dark:prose-invert"
         >
-          <RichText content={content} />
+          {content?.root?.children?.map((node, index) => (
+            <React.Fragment key={index}>
+              {renderNode(node)}
+            </React.Fragment>
+          ))}
         </div>
       </div>
     </div>
