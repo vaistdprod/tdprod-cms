@@ -2,7 +2,8 @@
 $hostsPath = "$env:windir\System32\drivers\etc\hosts"
 $domains = @(
     "127.0.0.1 drsarah.test",
-    "127.0.0.1 pediatric-clinic.test"
+    "127.0.0.1 pediatric-clinic.test",
+    "127.0.0.1 pedicare.local"
 )
 
 # Check if entries already exist
@@ -21,3 +22,4 @@ if ($newEntries.Count -gt 0) {
 Write-Host "`nYou can now access the sites at:"
 Write-Host "http://drsarah.test:3000"
 Write-Host "http://pediatric-clinic.test:3000"
+Write-Host "http://pedicare.local:3000"

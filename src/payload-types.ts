@@ -70,8 +70,11 @@ export interface Config {
     tenants: Tenant;
     services: Service;
     'office-hours': OfficeHour;
-    news: News;
+    posts: Post;
     media: Media;
+    team: Team;
+    testimonials: Testimonial;
+    faqs: Faq;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -83,8 +86,11 @@ export interface Config {
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     'office-hours': OfficeHoursSelect<false> | OfficeHoursSelect<true>;
-    news: NewsSelect<false> | NewsSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    team: TeamSelect<false> | TeamSelect<true>;
+    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    faqs: FaqsSelect<false> | FaqsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -128,8 +134,204 @@ export interface UserAuthOperations {
 export interface Page {
   id: string;
   tenant?: (string | null) | Tenant;
-  title?: string | null;
-  slug?: string | null;
+  title: string;
+  slug: string;
+  uniqueSlug: string;
+  layout?:
+    | (
+        | HeroBlock
+        | {
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: string;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            columns?: ('1' | '2') | null;
+            style?: {
+              /**
+               * Hex color or CSS variable
+               */
+              textColor?: string | null;
+              /**
+               * Hex color or CSS variable
+               */
+              backgroundColor?: string | null;
+              maxWidth?: string | null;
+              padding?: {
+                top?: string | null;
+                bottom?: string | null;
+              };
+              alignment?: ('left' | 'center') | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textContent';
+          }
+        | {
+            heading: string;
+            subheading?: string | null;
+            layout?: ('grid' | 'list' | 'cards') | null;
+            style?: {
+              textAlignment?: ('left' | 'center' | 'right') | null;
+              padding?: {
+                top?: string | null;
+                bottom?: string | null;
+              };
+              columns?: ('2' | '3' | '4') | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'teamGrid';
+          }
+        | {
+            heading: string;
+            subheading?: string | null;
+            layout?: ('grid' | 'list' | 'cards' | 'features') | null;
+            style?: {
+              textAlignment?: ('left' | 'center' | 'right') | null;
+              padding?: {
+                top?: string | null;
+                bottom?: string | null;
+              };
+              columns?: ('2' | '3' | '4') | null;
+              background?: ('white' | 'light' | 'brand') | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'serviceGrid';
+          }
+        | {
+            heading: string;
+            subheading?: string | null;
+            formType?: ('contact' | 'appointment') | null;
+            style?: {
+              layout?: ('split' | 'centered' | 'full') | null;
+              textAlignment?: ('left' | 'center') | null;
+              padding?: {
+                top?: string | null;
+                bottom?: string | null;
+              };
+              background?: ('white' | 'light' | 'brand') | null;
+            };
+            contactInfo?: {
+              /**
+               * Show contact information alongside the form
+               */
+              showContactInfo?: boolean | null;
+              /**
+               * Show location map
+               */
+              showMap?: boolean | null;
+              /**
+               * Show social media links
+               */
+              showSocialMedia?: boolean | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contactForm';
+          }
+        | {
+            heading: string;
+            subheading?: string | null;
+            testimonials?:
+              | {
+                  author: string;
+                  role?: string | null;
+                  content: string;
+                  rating?: ('5' | '4' | '3' | '2' | '1') | null;
+                  image?: (string | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            style?: {
+              layout?: ('grid' | 'carousel' | 'masonry') | null;
+              textAlignment?: ('left' | 'center') | null;
+              padding?: {
+                top?: string | null;
+                bottom?: string | null;
+              };
+              background?: ('white' | 'light' | 'brand') | null;
+              showRatings?: boolean | null;
+              showImages?: boolean | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonialsGrid';
+          }
+        | {
+            heading: string;
+            subheading?: string | null;
+            questions?:
+              | {
+                  question: string;
+                  answer: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: string;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  };
+                  /**
+                   * Optional category for grouping questions
+                   */
+                  category?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            style?: {
+              layout?: ('accordion' | 'grid' | 'tabs') | null;
+              textAlignment?: ('left' | 'center') | null;
+              padding?: {
+                top?: string | null;
+                bottom?: string | null;
+              };
+              background?: ('white' | 'light' | 'brand') | null;
+              /**
+               * Group questions by category
+               */
+              showCategories?: boolean | null;
+              /**
+               * Expand the first question by default
+               */
+              expandFirst?: boolean | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+      )[]
+    | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    keywords?: string | null;
+  };
+  associatedTenant: string | Tenant;
+  customCSS?: string | null;
+  navigation?: {
+    showInMainNav?: boolean | null;
+    navOrder?: number | null;
+    navLabel?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -149,11 +351,133 @@ export interface Tenant {
    */
   slug: string;
   /**
+   * Type of business this tenant represents
+   */
+  businessType: 'healthcare' | 'legal' | 'non-profit' | 'professional' | 'education' | 'other';
+  features?: {
+    blog?: boolean | null;
+    team?: boolean | null;
+    services?: boolean | null;
+    testimonials?: boolean | null;
+    appointments?: boolean | null;
+  };
+  theme?: {
+    /**
+     * Primary brand color (hex code)
+     */
+    primaryColor?: string | null;
+    /**
+     * Secondary brand color (hex code)
+     */
+    secondaryColor?: string | null;
+    fontFamily?: ('inter' | 'montserrat' | 'roboto' | 'open-sans') | null;
+  };
+  contact: {
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    socialMedia?:
+      | {
+          platform?: ('facebook' | 'twitter' | 'instagram' | 'linkedin' | 'youtube') | null;
+          url?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
    * If checked, logging in is not required to read. Useful for building public pages.
    */
   allowPublicRead?: boolean | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  heading: string;
+  subheading?: string | null;
+  backgroundImage?: (string | null) | Media;
+  buttons?:
+    | {
+        label: string;
+        link: string;
+        style?: ('primary' | 'secondary' | 'text') | null;
+        id?: string | null;
+      }[]
+    | null;
+  style?: {
+    /**
+     * Hex color or CSS variable
+     */
+    textColor?: string | null;
+    /**
+     * Hex color or CSS variable
+     */
+    backgroundColor?: string | null;
+    textAlignment?: ('left' | 'center' | 'right') | null;
+    padding?: {
+      top?: string | null;
+      bottom?: string | null;
+    };
+    backgroundOverlay?: {
+      enabled?: boolean | null;
+      /**
+       * Hex color with opacity (e.g., #00000080)
+       */
+      color?: string | null;
+    };
+    height?: ('auto' | '100vh' | '75vh' | '50vh') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    tablet?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -190,13 +514,7 @@ export interface Service {
   tenant?: (string | null) | Tenant;
   title: string;
   description: string;
-  /**
-   * Font Awesome icon name (e.g., faStethoscope)
-   */
   icon: string;
-  /**
-   * Order in which the service should appear
-   */
   order: number;
   updatedAt: string;
   createdAt: string;
@@ -225,17 +543,24 @@ export interface OfficeHour {
    * Any special notes for this day (e.g., By appointment only)
    */
   specialNote?: string | null;
+  associatedTenant: string | Tenant;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "news".
+ * via the `definition` "posts".
  */
-export interface News {
+export interface Post {
   id: string;
   tenant?: (string | null) | Tenant;
   title: string;
+  slug: string;
+  author: string | User;
+  publishedDate: string;
+  status: 'draft' | 'published';
+  featuredImage: string | Media;
+  excerpt: string;
   content: {
     root: {
       type: string;
@@ -251,60 +576,115 @@ export interface News {
     };
     [k: string]: unknown;
   };
-  publishedDate: string;
-  image?: (string | null) | Media;
-  /**
-   * Check to make this news item visible on the website
-   */
-  isPublished?: boolean | null;
+  categories?:
+    | {
+        category?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  associatedTenant: string | Tenant;
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    keywords?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
+ * via the `definition` "team".
  */
-export interface Media {
+export interface Team {
   id: string;
-  tenant?: (string | null) | Tenant;
-  alt: string;
+  name: string;
+  role: string;
+  specialization: string;
+  image: string | Media;
+  bio: string;
+  education?:
+    | {
+        degree: string;
+        institution: string;
+        year: string;
+        id?: string | null;
+      }[]
+    | null;
+  certifications?:
+    | {
+        title: string;
+        issuer: string;
+        year: string;
+        id?: string | null;
+      }[]
+    | null;
+  languages?:
+    | {
+        language: string;
+        level: 'native' | 'fluent' | 'professional' | 'basic';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Use this to control the order of team members on the website
+   */
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  author: string;
+  role?: string | null;
+  content: string;
+  rating: '5' | '4' | '3' | '2' | '1';
+  image?: (string | null) | Media;
+  associatedTenant: string | Tenant;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  question: string;
+  answer: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
     };
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    hero?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
+    [k: string]: unknown;
   };
+  /**
+   * Optional category for grouping questions
+   */
+  category?: string | null;
+  order?: number | null;
+  associatedTenant: string | Tenant;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -334,12 +714,24 @@ export interface PayloadLockedDocument {
         value: string | OfficeHour;
       } | null)
     | ({
-        relationTo: 'news';
-        value: string | News;
+        relationTo: 'posts';
+        value: string | Post;
       } | null)
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'team';
+        value: string | Team;
+      } | null)
+    | ({
+        relationTo: 'testimonials';
+        value: string | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'faqs';
+        value: string | Faq;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -391,8 +783,227 @@ export interface PagesSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   slug?: T;
+  uniqueSlug?: T;
+  layout?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        textContent?:
+          | T
+          | {
+              content?: T;
+              columns?: T;
+              style?:
+                | T
+                | {
+                    textColor?: T;
+                    backgroundColor?: T;
+                    maxWidth?: T;
+                    padding?:
+                      | T
+                      | {
+                          top?: T;
+                          bottom?: T;
+                        };
+                    alignment?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        teamGrid?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              layout?: T;
+              style?:
+                | T
+                | {
+                    textAlignment?: T;
+                    padding?:
+                      | T
+                      | {
+                          top?: T;
+                          bottom?: T;
+                        };
+                    columns?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        serviceGrid?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              layout?: T;
+              style?:
+                | T
+                | {
+                    textAlignment?: T;
+                    padding?:
+                      | T
+                      | {
+                          top?: T;
+                          bottom?: T;
+                        };
+                    columns?: T;
+                    background?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        contactForm?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              formType?: T;
+              style?:
+                | T
+                | {
+                    layout?: T;
+                    textAlignment?: T;
+                    padding?:
+                      | T
+                      | {
+                          top?: T;
+                          bottom?: T;
+                        };
+                    background?: T;
+                  };
+              contactInfo?:
+                | T
+                | {
+                    showContactInfo?: T;
+                    showMap?: T;
+                    showSocialMedia?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        testimonialsGrid?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              testimonials?:
+                | T
+                | {
+                    author?: T;
+                    role?: T;
+                    content?: T;
+                    rating?: T;
+                    image?: T;
+                    id?: T;
+                  };
+              style?:
+                | T
+                | {
+                    layout?: T;
+                    textAlignment?: T;
+                    padding?:
+                      | T
+                      | {
+                          top?: T;
+                          bottom?: T;
+                        };
+                    background?: T;
+                    showRatings?: T;
+                    showImages?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              questions?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    category?: T;
+                    id?: T;
+                  };
+              style?:
+                | T
+                | {
+                    layout?: T;
+                    textAlignment?: T;
+                    padding?:
+                      | T
+                      | {
+                          top?: T;
+                          bottom?: T;
+                        };
+                    background?: T;
+                    showCategories?: T;
+                    expandFirst?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        keywords?: T;
+      };
+  associatedTenant?: T;
+  customCSS?: T;
+  navigation?:
+    | T
+    | {
+        showInMainNav?: T;
+        navOrder?: T;
+        navLabel?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  heading?: T;
+  subheading?: T;
+  backgroundImage?: T;
+  buttons?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+        style?: T;
+        id?: T;
+      };
+  style?:
+    | T
+    | {
+        textColor?: T;
+        backgroundColor?: T;
+        textAlignment?: T;
+        padding?:
+          | T
+          | {
+              top?: T;
+              bottom?: T;
+            };
+        backgroundOverlay?:
+          | T
+          | {
+              enabled?: T;
+              color?: T;
+            };
+        height?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -426,6 +1037,37 @@ export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   domain?: T;
   slug?: T;
+  businessType?: T;
+  features?:
+    | T
+    | {
+        blog?: T;
+        team?: T;
+        services?: T;
+        testimonials?: T;
+        appointments?: T;
+      };
+  theme?:
+    | T
+    | {
+        primaryColor?: T;
+        secondaryColor?: T;
+        fontFamily?: T;
+      };
+  contact?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+        address?: T;
+        socialMedia?:
+          | T
+          | {
+              platform?: T;
+              url?: T;
+              id?: T;
+            };
+      };
   allowPublicRead?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -454,20 +1096,44 @@ export interface OfficeHoursSelect<T extends boolean = true> {
   closeTime?: T;
   isClosed?: T;
   specialNote?: T;
+  associatedTenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "news_select".
+ * via the `definition` "posts_select".
  */
-export interface NewsSelect<T extends boolean = true> {
+export interface PostsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
-  content?: T;
+  slug?: T;
+  author?: T;
   publishedDate?: T;
-  image?: T;
-  isPublished?: T;
+  status?: T;
+  featuredImage?: T;
+  excerpt?: T;
+  content?: T;
+  categories?:
+    | T
+    | {
+        category?: T;
+        id?: T;
+      };
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  associatedTenant?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        keywords?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -477,7 +1143,6 @@ export interface NewsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
-  alt?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -512,7 +1177,7 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        hero?:
+        tablet?:
           | T
           | {
               url?: T;
@@ -523,6 +1188,72 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team_select".
+ */
+export interface TeamSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  specialization?: T;
+  image?: T;
+  bio?: T;
+  education?:
+    | T
+    | {
+        degree?: T;
+        institution?: T;
+        year?: T;
+        id?: T;
+      };
+  certifications?:
+    | T
+    | {
+        title?: T;
+        issuer?: T;
+        year?: T;
+        id?: T;
+      };
+  languages?:
+    | T
+    | {
+        language?: T;
+        level?: T;
+        id?: T;
+      };
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials_select".
+ */
+export interface TestimonialsSelect<T extends boolean = true> {
+  tenant?: T;
+  author?: T;
+  role?: T;
+  content?: T;
+  rating?: T;
+  image?: T;
+  associatedTenant?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  tenant?: T;
+  question?: T;
+  answer?: T;
+  category?: T;
+  order?: T;
+  associatedTenant?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

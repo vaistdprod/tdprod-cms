@@ -19,7 +19,7 @@ export const superAdminOrTenantAdminAccess: Access = ({ req }: { req: PayloadReq
   // For tenant admins, only allow access to their tenant's pages
   if (user?.tenants?.some((t: TenantRole) => t.roles.includes('tenant-admin'))) {
     return {
-      tenant: {
+      associatedTenant: {
         in: user.tenants.map((t: TenantRole) => t.tenant),
       },
     }

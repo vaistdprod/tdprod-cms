@@ -11,7 +11,7 @@ export const OfficeHours: CollectionConfig = {
     read: async ({ req }: { req: PayloadRequest }) => {
       if (!req.user) return true
       return {
-        tenant: {
+        associatedTenant: {
           in: req.user.tenants?.map((t) => t.tenant) || [],
         },
       }
@@ -62,6 +62,13 @@ export const OfficeHours: CollectionConfig = {
       admin: {
         description: 'Any special notes for this day (e.g., By appointment only)',
       },
+    },
+    {
+      name: 'associatedTenant',
+      type: 'relationship',
+      relationTo: 'tenants',
+      required: true,
+      hasMany: false,
     },
   ],
 }
