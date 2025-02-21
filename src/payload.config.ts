@@ -1,10 +1,9 @@
-import { createSupabaseAdapter } from './db/supabase/adapter'
+import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
-import { buildConfig } from 'payload/config'
+import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
-import { initializeServer, cleanupServer } from './server'
 
 import { Pages } from './collections/Pages'
 import { Tenants } from './collections/Tenants'
@@ -25,7 +24,7 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 // eslint-disable-next-line no-restricted-exports
-const config = buildConfig({
+export default buildConfig({
   admin: {
     user: 'users',
   },
@@ -41,7 +40,9 @@ const config = buildConfig({
     Testimonials,
     FAQs,
   ],
-  db: createSupabaseAdapter(),
+  db: mongooseAdapter({
+    url: process.env.MONGODB_URI as string,
+  }),
   editor: lexicalEditor({}),
   graphQL: {
     schemaOutputFile: path.resolve(dirname, 'generated-schema.graphql'),
@@ -91,7 +92,7 @@ const config = buildConfig({
       tenantField: {
         access: {
           read: () => true,
-          update: ({ req }: { req: any }) => {
+          update: ({ req }) => {
             if (isSuperAdmin(req.user)) {
               return true
             }
@@ -102,19 +103,7 @@ const config = buildConfig({
       tenantsArrayField: {
         includeDefaultField: false,
       },
-      userHasAccessToAllTenants: (user: any) => isSuperAdmin(user),
+      userHasAccessToAllTenants: (user) => isSuperAdmin(user),
     }),
   ],
 })
-
-// Initialize server when Payload starts
-if (process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview') {
-  initializeServer().catch(console.error)
-}
-
-// Handle cleanup on process termination
-process.on('beforeExit', async () => {
-  await cleanupServer()
-})
-
-export default config

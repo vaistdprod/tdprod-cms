@@ -15,7 +15,6 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    group: 'Content',
   },
   access: {
     read: () => true,
@@ -33,9 +32,6 @@ export const Pages: CollectionConfig = {
       name: 'slug',
       type: 'text',
       required: true,
-      admin: {
-        description: 'URL-friendly version of the title (e.g., "about-us")',
-      },
     },
     {
       name: 'uniqueSlug',
@@ -54,22 +50,7 @@ export const Pages: CollectionConfig = {
         ]
       },
       admin: {
-        hidden: true,
-      },
-    },
-    {
-      name: 'pageType',
-      type: 'select',
-      options: [
-        { label: 'Standard Page', value: 'standard' },
-        { label: 'Landing Page', value: 'landing' },
-        { label: 'Blog Post', value: 'blog' },
-        { label: 'Service Page', value: 'service' },
-        { label: 'Contact Page', value: 'contact' },
-      ],
-      defaultValue: 'standard',
-      admin: {
-        description: 'Type of page - affects available blocks and layout options',
+        hidden: true, // Hide this field in admin UI
       },
     },
     {
@@ -84,9 +65,6 @@ export const Pages: CollectionConfig = {
         TestimonialsGridBlock,
         FAQBlock,
       ],
-      admin: {
-        description: 'Build your page by adding and arranging content blocks',
-      },
     },
     {
       name: 'meta',
@@ -95,31 +73,14 @@ export const Pages: CollectionConfig = {
         {
           name: 'title',
           type: 'text',
-          admin: {
-            description: 'Override the default page title for SEO',
-          },
         },
         {
           name: 'description',
           type: 'textarea',
-          admin: {
-            description: 'Meta description for search engines',
-          },
         },
         {
           name: 'keywords',
           type: 'text',
-          admin: {
-            description: 'Comma-separated keywords for search engines',
-          },
-        },
-        {
-          name: 'ogImage',
-          type: 'upload',
-          relationTo: 'media',
-          admin: {
-            description: 'Social media sharing image',
-          },
         },
       ],
     },
@@ -129,16 +90,12 @@ export const Pages: CollectionConfig = {
       relationTo: 'tenants',
       required: true,
       hasMany: false,
-      admin: {
-        position: 'sidebar',
-      },
     },
     {
       name: 'customCSS',
       type: 'code',
       admin: {
         language: 'css',
-        description: 'Add custom CSS styles for this page',
       },
     },
     {
@@ -149,15 +106,11 @@ export const Pages: CollectionConfig = {
           name: 'showInMainNav',
           type: 'checkbox',
           defaultValue: false,
-          admin: {
-            description: 'Show this page in the main navigation',
-          },
         },
         {
           name: 'navOrder',
           type: 'number',
           admin: {
-            description: 'Order in the navigation menu',
             condition: (data) => Boolean(data?.navigation?.showInMainNav),
           },
         },
@@ -165,49 +118,10 @@ export const Pages: CollectionConfig = {
           name: 'navLabel',
           type: 'text',
           admin: {
-            description: 'Custom label for navigation (defaults to page title)',
             condition: (data) => Boolean(data?.navigation?.showInMainNav),
           },
         },
-        {
-          name: 'parentPage',
-          type: 'relationship',
-          relationTo: 'pages',
-          hasMany: false,
-          admin: {
-            description: 'Parent page for nested navigation',
-            condition: (data) => Boolean(data?.navigation?.showInMainNav),
-          },
-          filterOptions: ({ data }) => ({
-            associatedTenant: {
-              equals: data?.associatedTenant
-            }
-          }),
-        },
       ],
-    },
-    {
-      name: 'status',
-      type: 'select',
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Published', value: 'published' },
-        { label: 'Archived', value: 'archived' },
-      ],
-      defaultValue: 'draft',
-      required: true,
-      admin: {
-        position: 'sidebar',
-      },
-    },
-    {
-      name: 'publishedAt',
-      type: 'date',
-      admin: {
-        position: 'sidebar',
-        description: 'Date when the page was first published',
-        condition: (data) => data?.status === 'published',
-      },
     },
   ],
   hooks: {

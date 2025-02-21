@@ -1,21 +1,19 @@
--- Enable UUID extension
+-- Enable extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS btree_gin;
 
 -- Enable Row Level Security
 ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
 
--- Enable RLS on all tables
-ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.pages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.media ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_tenant_roles ENABLE ROW LEVEL SECURITY;
+-- Create base tables
+CREATE TABLE IF NOT EXISTS public.migrations (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name text NOT NULL UNIQUE,
+  batch integer NOT NULL,
+  executed_at timestamp with time zone DEFAULT timezone('utc', now())
+);
 
--- Create tables
 CREATE TABLE public.tenants (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   name TEXT NOT NULL,
@@ -46,9 +44,7 @@ CREATE TABLE public.pages (
   tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   slug TEXT NOT NULL,
-  unique_slug TEXT NOT NULL UNIQUE,
-  layout JSONB,
-  seo JSONB,
+  content JSONB,
   status TEXT DEFAULT 'draft',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -60,8 +56,8 @@ CREATE TABLE public.services (
   tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT,
-  icon TEXT,
-  order INTEGER,
+  content JSONB,
+  status TEXT DEFAULT 'draft',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -71,10 +67,8 @@ CREATE TABLE public.team_members (
   tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   role TEXT,
-  specialization TEXT,
   bio TEXT,
   image_url TEXT,
-  order INTEGER,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -84,7 +78,7 @@ CREATE TABLE public.testimonials (
   tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
   author TEXT NOT NULL,
   content TEXT NOT NULL,
-  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  rating INTEGER,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -94,7 +88,6 @@ CREATE TABLE public.faqs (
   tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
   question TEXT NOT NULL,
   answer TEXT NOT NULL,
-  order INTEGER,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -136,6 +129,17 @@ CREATE INDEX idx_posts_tenant ON public.posts(tenant_id);
 CREATE INDEX idx_media_tenant ON public.media(tenant_id);
 CREATE INDEX idx_user_tenant_roles ON public.user_tenant_roles(user_id, tenant_id);
 
+-- Enable RLS on all tables
+ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.pages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_tenant_roles ENABLE ROW LEVEL SECURITY;
+
 -- Create RLS policies
 CREATE POLICY tenant_isolation_policy ON public.pages
   FOR ALL USING (
@@ -147,111 +151,21 @@ CREATE POLICY tenant_isolation_policy ON public.pages
     )
   );
 
-CREATE POLICY tenant_isolation_policy ON public.services
+-- Repeat similar RLS policies for other tables
+CREATE POLICY tenant_isolation_policy ON public.services USING (tenant_id IN (SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()) OR tenant_id IN (SELECT id FROM public.tenants WHERE allow_public_read = true));
+CREATE POLICY tenant_isolation_policy ON public.team_members USING (tenant_id IN (SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()) OR tenant_id IN (SELECT id FROM public.tenants WHERE allow_public_read = true));
+CREATE POLICY tenant_isolation_policy ON public.testimonials USING (tenant_id IN (SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()) OR tenant_id IN (SELECT id FROM public.tenants WHERE allow_public_read = true));
+CREATE POLICY tenant_isolation_policy ON public.faqs USING (tenant_id IN (SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()) OR tenant_id IN (SELECT id FROM public.tenants WHERE allow_public_read = true));
+CREATE POLICY tenant_isolation_policy ON public.posts USING (tenant_id IN (SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()) OR tenant_id IN (SELECT id FROM public.tenants WHERE allow_public_read = true));
+CREATE POLICY tenant_isolation_policy ON public.media USING (tenant_id IN (SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()) OR tenant_id IN (SELECT id FROM public.tenants WHERE allow_public_read = true));
+
+CREATE POLICY tenant_roles_isolation_policy ON public.user_tenant_roles
   FOR ALL USING (
-    tenant_id IN (
-      SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()
-    ) OR 
-    tenant_id IN (
-      SELECT id FROM public.tenants WHERE allow_public_read = true
+    user_id = auth.uid() OR
+    EXISTS (
+      SELECT 1 FROM public.user_tenant_roles utr
+      WHERE utr.user_id = auth.uid()
+      AND utr.tenant_id = user_tenant_roles.tenant_id
+      AND 'admin' = ANY(utr.roles)
     )
-  );
-
-CREATE POLICY tenant_isolation_policy ON public.team_members
-  FOR ALL USING (
-    tenant_id IN (
-      SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()
-    ) OR 
-    tenant_id IN (
-      SELECT id FROM public.tenants WHERE allow_public_read = true
-    )
-  );
-
-CREATE POLICY tenant_isolation_policy ON public.testimonials
-  FOR ALL USING (
-    tenant_id IN (
-      SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()
-    ) OR 
-    tenant_id IN (
-      SELECT id FROM public.tenants WHERE allow_public_read = true
-    )
-  );
-
-CREATE POLICY tenant_isolation_policy ON public.faqs
-  FOR ALL USING (
-    tenant_id IN (
-      SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()
-    ) OR 
-    tenant_id IN (
-      SELECT id FROM public.tenants WHERE allow_public_read = true
-    )
-  );
-
-CREATE POLICY tenant_isolation_policy ON public.posts
-  FOR ALL USING (
-    tenant_id IN (
-      SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()
-    ) OR 
-    tenant_id IN (
-      SELECT id FROM public.tenants WHERE allow_public_read = true
-    )
-  );
-
-CREATE POLICY tenant_isolation_policy ON public.media
-  FOR ALL USING (
-    tenant_id IN (
-      SELECT tenant_id FROM public.user_tenant_roles WHERE user_id = auth.uid()
-    ) OR 
-    tenant_id IN (
-      SELECT id FROM public.tenants WHERE allow_public_read = true
-    )
-  );
-
--- Create triggers for updated_at
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
-CREATE TRIGGER update_tenants_updated_at
-    BEFORE UPDATE ON public.tenants
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_pages_updated_at
-    BEFORE UPDATE ON public.pages
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_services_updated_at
-    BEFORE UPDATE ON public.services
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_team_members_updated_at
-    BEFORE UPDATE ON public.team_members
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_testimonials_updated_at
-    BEFORE UPDATE ON public.testimonials
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_faqs_updated_at
-    BEFORE UPDATE ON public.faqs
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_posts_updated_at
-    BEFORE UPDATE ON public.posts
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_media_updated_at
-    BEFORE UPDATE ON public.media
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+  ); 

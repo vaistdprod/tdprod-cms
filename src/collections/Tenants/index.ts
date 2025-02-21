@@ -1,7 +1,7 @@
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
+
 import { isSuperAdminAccess } from '@/access/isSuperAdmin'
 import { updateAndDeleteAccess } from './access/updateAndDelete'
-import { handleDomainChange } from '@/utilities/manageDomains'
 
 export const Tenants: CollectionConfig = {
   slug: 'tenants',
@@ -13,7 +13,6 @@ export const Tenants: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    group: 'Configuration',
   },
   fields: [
     {
@@ -25,50 +24,7 @@ export const Tenants: CollectionConfig = {
       name: 'domain',
       type: 'text',
       admin: {
-        description: 'Custom domain for this tenant (e.g., www.example.com)',
-      },
-      hooks: {
-        beforeChange: [
-          async ({ req, data, originalDoc }) => {
-            // Skip for new documents as we need the tenant ID
-            if (!originalDoc || !data) return data
-
-            const oldDomain = originalDoc.domain
-            const newDomain = data.domain
-
-            // Only proceed if domain has changed
-            if (oldDomain !== newDomain && originalDoc.id) {
-              const result = await handleDomainChange(originalDoc.id, newDomain || null, oldDomain || null)
-              if (!result.success) {
-                throw new Error(`Domain change failed: ${result.error}`)
-              }
-              
-              // Store verification details if provided
-              if (result.verificationDetails) {
-                data.domainVerificationDetails = result.verificationDetails
-              }
-            }
-            return data
-          }
-        ]
-      }
-    },
-    {
-      name: 'domainVerified',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: {
-        description: 'Indicates if the custom domain has been verified',
-        readOnly: true,
-      },
-    },
-    {
-      name: 'domainVerificationDetails',
-      type: 'json',
-      admin: {
-        description: 'DNS records needed for domain verification',
-        readOnly: true,
-        hidden: true,
+        description: 'Used for domain-based tenant handling',
       },
     },
     {
@@ -79,6 +35,22 @@ export const Tenants: CollectionConfig = {
       },
       index: true,
       required: true,
+    },
+    {
+      name: 'businessType',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Healthcare', value: 'healthcare' },
+        { label: 'Legal', value: 'legal' },
+        { label: 'Non-Profit', value: 'non-profit' },
+        { label: 'Professional Services', value: 'professional' },
+        { label: 'Education', value: 'education' },
+        { label: 'Other', value: 'other' }
+      ],
+      admin: {
+        description: 'Type of business this tenant represents',
+      },
     },
     {
       name: 'features',
@@ -150,42 +122,6 @@ export const Tenants: CollectionConfig = {
       ],
     },
     {
-      name: 'layout',
-      type: 'group',
-      fields: [
-        {
-          name: 'headerStyle',
-          type: 'select',
-          defaultValue: 'standard',
-          options: [
-            { label: 'Standard', value: 'standard' },
-            { label: 'Minimal', value: 'minimal' },
-            { label: 'Full Width', value: 'full' },
-          ],
-        },
-        {
-          name: 'footerStyle',
-          type: 'select',
-          defaultValue: 'standard',
-          options: [
-            { label: 'Standard', value: 'standard' },
-            { label: 'Simple', value: 'simple' },
-            { label: 'Full Width', value: 'full' },
-          ],
-        },
-        {
-          name: 'navigationStyle',
-          type: 'select',
-          defaultValue: 'standard',
-          options: [
-            { label: 'Standard', value: 'standard' },
-            { label: 'Mega Menu', value: 'mega' },
-            { label: 'Sidebar', value: 'sidebar' },
-          ],
-        },
-      ],
-    },
-    {
       name: 'contact',
       type: 'group',
       fields: [
@@ -222,33 +158,6 @@ export const Tenants: CollectionConfig = {
               type: 'text',
             },
           ],
-        },
-      ],
-    },
-    {
-      name: 'seo',
-      type: 'group',
-      fields: [
-        {
-          name: 'defaultTitle',
-          type: 'text',
-          admin: {
-            description: 'Default page title suffix',
-          },
-        },
-        {
-          name: 'defaultDescription',
-          type: 'textarea',
-          admin: {
-            description: 'Default meta description',
-          },
-        },
-        {
-          name: 'defaultKeywords',
-          type: 'text',
-          admin: {
-            description: 'Default meta keywords',
-          },
         },
       ],
     },

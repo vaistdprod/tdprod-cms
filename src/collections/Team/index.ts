@@ -1,6 +1,6 @@
-import { CollectionConfig } from 'payload'
-import { isAccessingSelf } from '../Users/access/isAccessingSelf'
-import { superAdminOrTenantAdminAccess } from '../Pages/access/superAdminOrTenantAdmin'
+import type { CollectionConfig } from 'payload/types';
+import { isAccessingSelf } from '../Users/access/isAccessingSelf';
+import { superAdminOrTenantAdminAccess } from '../Pages/access/superAdminOrTenantAdmin';
 
 export const Team: CollectionConfig = {
   slug: 'team',
@@ -34,7 +34,7 @@ export const Team: CollectionConfig = {
       name: 'image',
       type: 'upload',
       relationTo: 'media',
-      required: false, // Changed from true to false
+      required: true,
     },
     {
       name: 'bio',
@@ -125,4 +125,4 @@ export const Team: CollectionConfig = {
       },
     },
   ],
-}
+};

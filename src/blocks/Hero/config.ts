@@ -1,73 +1,22 @@
-import { Block } from 'payload/types'
+import { Block } from 'payload'
 
 export const HeroBlock: Block = {
   slug: 'hero',
+  interfaceName: 'HeroBlock',
   fields: [
     {
       name: 'heading',
       type: 'text',
       required: true,
-      admin: {
-        description: 'The main heading for the hero section',
-      },
     },
     {
       name: 'subheading',
       type: 'text',
-      admin: {
-        description: 'Optional subheading text',
-      },
     },
     {
       name: 'backgroundImage',
       type: 'upload',
       relationTo: 'media',
-      admin: {
-        description: 'Background image for the hero section',
-      },
-    },
-    {
-      name: 'style',
-      type: 'group',
-      fields: [
-        {
-          name: 'textAlignment',
-          type: 'select',
-          defaultValue: 'center',
-          options: [
-            { label: 'Left', value: 'left' },
-            { label: 'Center', value: 'center' },
-            { label: 'Right', value: 'right' },
-          ],
-        },
-        {
-          name: 'height',
-          type: 'select',
-          defaultValue: 'medium',
-          options: [
-            { label: 'Small', value: 'small' },
-            { label: 'Medium', value: 'medium' },
-            { label: 'Large', value: 'large' },
-            { label: 'Full Screen', value: 'full' },
-          ],
-        },
-        {
-          name: 'padding',
-          type: 'group',
-          fields: [
-            {
-              name: 'top',
-              type: 'text',
-              defaultValue: '4rem',
-            },
-            {
-              name: 'bottom',
-              type: 'text',
-              defaultValue: '4rem',
-            },
-          ],
-        },
-      ],
     },
     {
       name: 'buttons',
@@ -86,18 +35,120 @@ export const HeroBlock: Block = {
         {
           name: 'style',
           type: 'select',
-          defaultValue: 'primary',
           options: [
-            { label: 'Primary', value: 'primary' },
-            { label: 'Secondary', value: 'secondary' },
-            { label: 'Text', value: 'text' },
+            {
+              label: 'Primary',
+              value: 'primary',
+            },
+            {
+              label: 'Secondary',
+              value: 'secondary',
+            },
+            {
+              label: 'Text',
+              value: 'text',
+            },
           ],
+          defaultValue: 'primary',
+        },
+      ],
+    },
+    {
+      name: 'style',
+      type: 'group',
+      fields: [
+        {
+          name: 'textColor',
+          type: 'text',
+          admin: {
+            description: 'Hex color or CSS variable',
+          },
+        },
+        {
+          name: 'backgroundColor',
+          type: 'text',
+          admin: {
+            description: 'Hex color or CSS variable',
+          },
+        },
+        {
+          name: 'textAlignment',
+          type: 'select',
+          options: [
+            {
+              label: 'Left',
+              value: 'left',
+            },
+            {
+              label: 'Center',
+              value: 'center',
+            },
+            {
+              label: 'Right',
+              value: 'right',
+            },
+          ],
+          defaultValue: 'center',
+        },
+        {
+          name: 'padding',
+          type: 'group',
+          fields: [
+            {
+              name: 'top',
+              type: 'text',
+              defaultValue: '4rem',
+            },
+            {
+              name: 'bottom',
+              type: 'text',
+              defaultValue: '4rem',
+            },
+          ],
+        },
+        {
+          name: 'backgroundOverlay',
+          type: 'group',
+          fields: [
+            {
+              name: 'enabled',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+            {
+              name: 'color',
+              type: 'text',
+              admin: {
+                description: 'Hex color with opacity (e.g., #00000080)',
+                condition: (data, siblingData) => siblingData?.enabled,
+              },
+            },
+          ],
+        },
+        {
+          name: 'height',
+          type: 'select',
+          options: [
+            {
+              label: 'Auto',
+              value: 'auto',
+            },
+            {
+              label: 'Full Screen',
+              value: '100vh',
+            },
+            {
+              label: '75% Screen',
+              value: '75vh',
+            },
+            {
+              label: '50% Screen',
+              value: '50vh',
+            },
+          ],
+          defaultValue: 'auto',
         },
       ],
     },
   ],
-  admin: {
-    description: 'A hero section with heading, optional background image, and call-to-action buttons',
-    group: 'content',
-  },
 }
