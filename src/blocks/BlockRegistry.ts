@@ -6,7 +6,7 @@ import { ServiceGridBlock } from './ServiceGrid/config'
 import { ContactFormBlock } from './ContactForm/config'
 import { TestimonialsGridBlock } from './TestimonialsGrid/config'
 import { FAQBlock } from './FAQ/config'
-import { Block, BlockData, BlockDataInput, BlockCategory, BlockMetadata, BlockValidation, BlockRegistry as BlockRegistryType } from './types'
+import { Block, BlockData, BlockDataInput, BlockCategory, BlockMetadata, BlockValidation, BlockRegistry as BlockRegistryType, BlockInput, PayloadFieldConfig } from './types'
 import { adaptPayloadBlockToBlock } from './adapter'
 import { VersionManager } from './versionManager'
 import { BlockErrorBoundary } from './ErrorBoundary'
@@ -14,12 +14,19 @@ import { BlockErrorBoundary } from './ErrorBoundary'
 // Registry of all available blocks with versioning
 export const blockRegistry: BlockRegistryType = {
   hero: {
-    component: adaptPayloadBlockToBlock(HeroBlock).component!,
+    component: HeroBlock.component!,
     config: {
-      ...adaptPayloadBlockToBlock(HeroBlock),
-      version: '1.0.0', // Initial version
-      component: adaptPayloadBlockToBlock(HeroBlock).component,
-    },
+      slug: HeroBlock.slug,
+      fields: HeroBlock.fields as PayloadFieldConfig[],
+      version: '1.0.0',
+      category: HeroBlock.category,
+      description: HeroBlock.description,
+      component: HeroBlock.component,
+      labels: {
+        singular: typeof HeroBlock.labels?.singular === 'string' ? HeroBlock.labels.singular : 'Hero',
+        plural: typeof HeroBlock.labels?.plural === 'string' ? HeroBlock.labels.plural : 'Heroes'
+      }
+    } as BlockInput,
     versions: [
       {
         version: '1.0.0',
@@ -30,12 +37,19 @@ export const blockRegistry: BlockRegistryType = {
     migrations: {},
   },
   textContent: {
-    component: adaptPayloadBlockToBlock(TextContentBlock).component!,
+    component: TextContentBlock.component!,
     config: {
-      ...adaptPayloadBlockToBlock(TextContentBlock),
+      slug: TextContentBlock.slug,
+      fields: TextContentBlock.fields as PayloadFieldConfig[],
       version: '1.0.0',
-      component: adaptPayloadBlockToBlock(TextContentBlock).component,
-    },
+      category: TextContentBlock.category,
+      description: TextContentBlock.description,
+      component: TextContentBlock.component,
+      labels: {
+        singular: typeof TextContentBlock.labels?.singular === 'string' ? TextContentBlock.labels.singular : 'Text Content',
+        plural: typeof TextContentBlock.labels?.plural === 'string' ? TextContentBlock.labels.plural : 'Text Contents'
+      }
+    } as BlockInput,
     versions: [
       {
         version: '1.0.0',
@@ -46,12 +60,19 @@ export const blockRegistry: BlockRegistryType = {
     migrations: {},
   },
   teamGrid: {
-    component: adaptPayloadBlockToBlock(TeamGridBlock).component!,
+    component: TeamGridBlock.component!,
     config: {
-      ...adaptPayloadBlockToBlock(TeamGridBlock),
+      slug: TeamGridBlock.slug,
+      fields: TeamGridBlock.fields as PayloadFieldConfig[],
       version: '1.0.0',
-      component: adaptPayloadBlockToBlock(TeamGridBlock).component,
-    },
+      category: TeamGridBlock.category,
+      description: TeamGridBlock.description,
+      component: TeamGridBlock.component,
+      labels: {
+        singular: typeof TeamGridBlock.labels?.singular === 'string' ? TeamGridBlock.labels.singular : 'Team Grid',
+        plural: typeof TeamGridBlock.labels?.plural === 'string' ? TeamGridBlock.labels.plural : 'Team Grids'
+      }
+    } as BlockInput,
     versions: [
       {
         version: '1.0.0',
@@ -62,12 +83,19 @@ export const blockRegistry: BlockRegistryType = {
     migrations: {},
   },
   serviceGrid: {
-    component: adaptPayloadBlockToBlock(ServiceGridBlock).component!,
+    component: ServiceGridBlock.component!,
     config: {
-      ...adaptPayloadBlockToBlock(ServiceGridBlock),
+      slug: ServiceGridBlock.slug,
+      fields: ServiceGridBlock.fields as PayloadFieldConfig[],
       version: '1.0.0',
-      component: adaptPayloadBlockToBlock(ServiceGridBlock).component,
-    },
+      category: ServiceGridBlock.category,
+      description: ServiceGridBlock.description,
+      component: ServiceGridBlock.component,
+      labels: {
+        singular: typeof ServiceGridBlock.labels?.singular === 'string' ? ServiceGridBlock.labels.singular : 'Service Grid',
+        plural: typeof ServiceGridBlock.labels?.plural === 'string' ? ServiceGridBlock.labels.plural : 'Service Grids'
+      }
+    } as BlockInput,
     versions: [
       {
         version: '1.0.0',
@@ -78,12 +106,19 @@ export const blockRegistry: BlockRegistryType = {
     migrations: {},
   },
   contactForm: {
-    component: adaptPayloadBlockToBlock(ContactFormBlock).component!,
+    component: ContactFormBlock.component!,
     config: {
-      ...adaptPayloadBlockToBlock(ContactFormBlock),
+      slug: ContactFormBlock.slug,
+      fields: ContactFormBlock.fields as PayloadFieldConfig[],
       version: '1.0.0',
-      component: adaptPayloadBlockToBlock(ContactFormBlock).component,
-    },
+      category: ContactFormBlock.category,
+      description: ContactFormBlock.description,
+      component: ContactFormBlock.component,
+      labels: {
+        singular: typeof ContactFormBlock.labels?.singular === 'string' ? ContactFormBlock.labels.singular : 'Contact Form',
+        plural: typeof ContactFormBlock.labels?.plural === 'string' ? ContactFormBlock.labels.plural : 'Contact Forms'
+      }
+    } as BlockInput,
     versions: [
       {
         version: '1.0.0',
@@ -94,12 +129,19 @@ export const blockRegistry: BlockRegistryType = {
     migrations: {},
   },
   testimonialsGrid: {
-    component: adaptPayloadBlockToBlock(TestimonialsGridBlock).component!,
+    component: TestimonialsGridBlock.component!,
     config: {
-      ...adaptPayloadBlockToBlock(TestimonialsGridBlock),
+      slug: TestimonialsGridBlock.slug,
+      fields: TestimonialsGridBlock.fields as PayloadFieldConfig[],
       version: '1.0.0',
-      component: adaptPayloadBlockToBlock(TestimonialsGridBlock).component,
-    },
+      category: TestimonialsGridBlock.category,
+      description: TestimonialsGridBlock.description,
+      component: TestimonialsGridBlock.component,
+      labels: {
+        singular: typeof TestimonialsGridBlock.labels?.singular === 'string' ? TestimonialsGridBlock.labels.singular : 'Testimonials Grid',
+        plural: typeof TestimonialsGridBlock.labels?.plural === 'string' ? TestimonialsGridBlock.labels.plural : 'Testimonials Grids'
+      }
+    } as BlockInput,
     versions: [
       {
         version: '1.0.0',
@@ -110,12 +152,19 @@ export const blockRegistry: BlockRegistryType = {
     migrations: {},
   },
   faq: {
-    component: adaptPayloadBlockToBlock(FAQBlock).component!,
+    component: FAQBlock.component!,
     config: {
-      ...adaptPayloadBlockToBlock(FAQBlock),
+      slug: FAQBlock.slug,
+      fields: FAQBlock.fields as PayloadFieldConfig[],
       version: '1.0.0',
-      component: adaptPayloadBlockToBlock(FAQBlock).component,
-    },
+      category: FAQBlock.category,
+      description: FAQBlock.description,
+      component: FAQBlock.component,
+      labels: {
+        singular: typeof FAQBlock.labels?.singular === 'string' ? FAQBlock.labels.singular : 'FAQ',
+        plural: typeof FAQBlock.labels?.plural === 'string' ? FAQBlock.labels.plural : 'FAQs'
+      }
+    } as BlockInput,
     versions: [
       {
         version: '1.0.0',
@@ -134,10 +183,13 @@ export const versionManager = new VersionManager(blockRegistry)
 export type BlockName = keyof typeof blockRegistry
 
 // Helper to convert BlockInput to Block
-const ensureStringVersion = (block: BlockInput): Block => ({
-  ...block,
-  version: block.version.toString(),
-})
+const ensureStringVersion = (block: BlockInput): Block => {
+  const stringVersion = typeof block.version === 'string' ? block.version : block.version.toString()
+  return {
+    ...block,
+    version: stringVersion
+  } as Block
+}
 
 // Helper to get block config
 export const getBlockConfig = (name: BlockName): Block => {
@@ -205,20 +257,19 @@ export const validateBlockData = (blockName: BlockName, data: BlockData): BlockV
 // Helper to get default block data
 export const getDefaultBlockData = (blockName: BlockName): BlockData => {
   const block = blockRegistry[blockName].config
-  const defaultData: Record<string, any> = {
+  const stringVersion = typeof block.version === 'string' ? block.version : block.version.toString()
+  const defaultData: BlockData = {
     blockType: blockName,
-    version: block.version.toString(),
+    version: stringVersion,
   }
 
   block.fields.forEach(field => {
     if (field.defaultValue !== undefined) {
-      defaultData[field.name] = typeof field.defaultValue === 'number'
-        ? field.defaultValue.toString()
-        : field.defaultValue
+      defaultData[field.name] = field.defaultValue
     }
   })
 
-  return defaultData as BlockData
+  return defaultData
 }
 
 // Helper to get block field

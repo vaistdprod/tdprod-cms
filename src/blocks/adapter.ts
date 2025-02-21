@@ -1,51 +1,49 @@
-import { Block as PayloadBlock, Field } from 'payload/types'
-import { Block, BlockField, BlockCategory } from './types'
+import { Block, BlockCategory, PayloadFieldConfig } from './types'
+import { ReactNode } from 'react'
 
-export const adaptPayloadBlockToBlock = (payloadBlock: PayloadBlock): Block => {
-  return {
-    slug: payloadBlock.slug || '',
-    fields: payloadBlock.fields.map(adaptPayloadFieldToBlockField),
-    category: payloadBlock.admin?.group as BlockCategory || 'other',
-    description: payloadBlock.admin?.description,
-    admin: {
-      description: payloadBlock.admin?.description,
-      preview: false,
-    },
+interface PayloadBlock {
+  slug: string
+  fields: PayloadFieldConfig[]
+  version: string
+  category?: string
+  description?: string
+  component?: React.ComponentType<any>
+  admin?: {
+    description?: string
+    preview?: (data: any) => ReactNode
   }
 }
 
-export const adaptPayloadFieldToBlockField = (payloadField: Field): BlockField => {
-  return {
-    name: payloadField.name as string,
-    type: payloadField.type,
-    label: typeof payloadField.label === 'string' ? payloadField.label : undefined,
-    required: !!payloadField.required,
-    defaultValue: 'defaultValue' in payloadField ? payloadField.defaultValue : undefined,
-    admin: {
-      description: payloadField.admin?.description,
-      condition: payloadField.admin?.condition,
-    },
-  }
-}
+type BlockField = PayloadFieldConfig
 
-export const adaptBlockToPayloadBlock = (block: Block): PayloadBlock => {
-  return {
-    slug: block.slug,
-    fields: block.fields.map(adaptBlockFieldToPayloadField),
-    admin: {
-      description: block.description,
-      group: block.category,
-    },
+export const adaptPayloadBlockToBlock = (payloadBlock: PayloadBlock): Block => ({
+  slug: payloadBlock.slug,
+  fields: payloadBlock.fields,
+  version: payloadBlock.version,
+  category: payloadBlock.category || 'other',
+  description: payloadBlock.description,
+  admin: {
+    description: payloadBlock.admin?.description || payloadBlock.description,
+    preview: payloadBlock.admin?.preview || (() => null),
   }
-}
+})
 
-export const adaptBlockFieldToPayloadField = (blockField: BlockField): Field => {
-  return {
-    name: blockField.name,
-    type: blockField.type,
-    label: blockField.label,
-    required: blockField.required,
-    defaultValue: blockField.defaultValue,
-    admin: blockField.admin,
-  } as Field
-}
+export const adaptPayloadFieldToBlockField = (payloadField: PayloadFieldConfig): BlockField => ({
+  ...payloadField
+})
+
+export const adaptBlockToPayloadBlock = (block: Block): PayloadBlock => ({
+  slug: block.slug,
+  fields: block.fields,
+  version: block.version,
+  category: block.category,
+  description: block.description,
+  admin: {
+    description: block.admin?.description,
+    preview: block.admin?.preview,
+  }
+})
+
+export const adaptBlockFieldToPayloadField = (blockField: BlockField): PayloadFieldConfig => ({
+  ...blockField
+})

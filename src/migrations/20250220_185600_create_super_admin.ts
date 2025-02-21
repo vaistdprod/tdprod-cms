@@ -1,6 +1,10 @@
-import { MigrateUpArgs, MigrateDownArgs } from '@payloadcms/db-mongodb'
+import { Payload } from 'payload'
 
-export async function up({ payload }: MigrateUpArgs): Promise<void> {
+interface MigrationArgs {
+  payload: Payload
+}
+
+export async function up({ payload }: MigrationArgs): Promise<void> {
   try {
     // Check if super admin exists first
     const existingSuperAdmin = await payload.find({
@@ -35,7 +39,7 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
   }
 }
 
-export async function down({ payload }: MigrateDownArgs): Promise<void> {
+export async function down({ payload }: MigrationArgs): Promise<void> {
   try {
     // Find and delete the super admin user
     const superAdmin = await payload.find({

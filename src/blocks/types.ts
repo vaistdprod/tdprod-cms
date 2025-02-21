@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+  import { ReactNode } from 'react'
 
 export interface PayloadFieldConfig {
   name: string
@@ -6,6 +6,10 @@ export interface PayloadFieldConfig {
   required?: boolean
   label?: string
   defaultValue?: string | number | boolean | null
+  admin?: {
+    description?: string
+    condition?: any
+  }
 }
 
 export interface VersionedBlockData {
@@ -40,11 +44,61 @@ export interface BaseBlock {
   }
 }
 
-export interface Block extends Omit<BaseBlock, 'version'> {
+export interface BaseBlockConfig {
+  slug: string
+  fields: PayloadFieldConfig[]
+  labels?: {
+    singular: string
+    plural: string
+  }
+  requiredFeature?: string
+  admin?: {
+    description?: string
+    preview?: (data: any) => ReactNode
+  }
+}
+
+export interface BlockCommonProps {
+  slug: string
+  fields: PayloadFieldConfig[]
+  category?: string
+  description?: string
+  component?: React.ComponentType<any>
+  labels?: {
+    singular: string
+    plural: string
+  }
+  requiredFeature?: string
+  admin?: {
+    description?: string
+    preview?: (data: any) => ReactNode
+  }
+}
+
+export interface BlockBase {
+  slug: string
+  fields: PayloadFieldConfig[]
+  category?: string
+  description?: string
+  component?: React.ComponentType<any>
+  labels?: {
+    singular: string
+    plural: string
+  }
+  requiredFeature?: string
+  admin?: {
+    description?: string
+    preview?: (data: any) => ReactNode
+  }
+}
+
+export interface Block extends BlockBase {
   version: string
 }
 
-export interface BlockInput extends BaseBlock {}
+export interface BlockInput extends BlockBase {
+  version: string | number
+}
 
 export type BlockConfig = Block
 
